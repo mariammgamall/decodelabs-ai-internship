@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synapse AI - Interactive Recommendation Engine</title>
+  <meta name="description" content="An advanced client-side AI recommendation system demonstrating vector similarity and Jaccard classification.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Area -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">S</div>
+      <div>
+        <span class="logo-text">SYNAPSE AI</span>
+        <div style="font-size: 0.65rem; color: var(--text-muted); font-weight: 500; letter-spacing: 0.05em; margin-top: -2px;">RECOM ENGINE</div>
+      </div>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <div class="badge pulse-glow" id="status-engine-badge">Engine: Active</div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main>
+    
+    <!-- Sidebar: Preferences Inputs -->
+    <aside class="sidebar">
+      <section class="card">
+        <h2 class="section-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          Preference Profile
+        </h2>
+        
+        <!-- Category Selector -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Category</span>
+          </div>
+          <div class="media-selectors">
+            <button class="media-btn active" data-category="movies" id="btn-cat-movies">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+              Movies
+            </button>
+            <button class="media-btn" data-category="books" id="btn-cat-books">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              Books
+            </button>
+            <button class="media-btn" data-category="games" id="btn-cat-games">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+              Games
+            </button>
+          </div>
+        </div>
+
+        <!-- Keyword Filter -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Filter Keyword</span>
+          </div>
+          <div class="search-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="search-input" placeholder="Search titles, descriptions...">
+          </div>
+        </div>
+
+        <!-- Genre Selection -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Select Genres</span>
+          </div>
+          <div class="chips-container" id="genre-chips-container">
+            <!-- Rendered Dynamically by JS -->
+          </div>
+        </div>
+
+        <!-- Mood Selection -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Desired Mood</span>
+          </div>
+          <div class="chips-container" id="mood-chips-container">
+            <!-- Rendered Dynamically by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Sliders / Vector Attributes -->
+      <section class="card">
+        <h2 class="section-title">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+          Vector Attributes
+        </h2>
+
+        <!-- Pace Slider -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Pace / Flow</span>
+            <span class="label-value" id="slider-pace-val">Balanced</span>
+          </div>
+          <input type="range" id="slider-pace" min="1" max="5" value="3">
+        </div>
+
+        <!-- Complexity Slider -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Complexity</span>
+            <span class="label-value" id="slider-complexity-val">Moderate</span>
+          </div>
+          <input type="range" id="slider-complexity" min="1" max="5" value="3">
+        </div>
+
+        <!-- Era Slider -->
+        <div class="preference-group">
+          <div class="preference-label">
+            <span>Era / Age</span>
+            <span class="label-value" id="slider-era-val">Modern Classic</span>
+          </div>
+          <input type="range" id="slider-era" min="1" max="5" value="3">
+        </div>
+      </section>
+    </aside>
+
+    <!-- Content Area -->
+    <section class="content-area">
+      <!-- Navigation Tabs -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="recommendations" id="tab-recom">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.286L13 21l-2.286-6.857L5 12l5.714-2.286L13 3z"/></svg>
+          Recommendations
+        </button>
+        <button class="tab-btn" data-tab="visualizer" id="tab-viz">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+          Similarity Visualizer
+        </button>
+        <button class="tab-btn" data-tab="database" id="tab-db">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          Database Manager
+        </button>
+        <button class="tab-btn" data-tab="tests" id="tab-tests">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Automated Tests
+        </button>
+      </nav>
+
+      <!-- View 1: Recommendations -->
+      <div id="recommendations-content" class="tab-content active">
+        <div class="results-header">
+          <h2 style="font-family: var(--font-heading); font-size: 1.25rem;">Curated Recommendations</h2>
+          <span class="results-count" id="results-count-span">Calculating...</span>
+        </div>
+        <div class="results-grid" id="recommendations-grid">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- View 2: Visualizer -->
+      <div id="visualizer-content" class="tab-content">
+        <div class="results-header">
+          <h2 style="font-family: var(--font-heading); font-size: 1.25rem;">Similarity Breakdown</h2>
+        </div>
+        <div class="visualizer-container" id="visualizer-items-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- View 3: Database Manager -->
+      <div id="database-content" class="tab-content">
+        <div class="results-header">
+          <h2 style="font-family: var(--font-heading); font-size: 1.25rem;">Library Database Manager</h2>
+        </div>
+        
+        <div class="db-container">
+          <!-- Form Panel -->
+          <div class="card">
+            <h3 class="viz-title" style="margin-bottom: 1rem;">Add Custom Item</h3>
+            <form id="add-item-form">
+              <div class="form-group">
+                <label for="db-title">Item Title *</label>
+                <input type="text" id="db-title" class="form-input" placeholder="e.g. Inception" required>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="db-category">Category</label>
+                  <select id="db-category" class="form-select">
+                    <option value="movies">Movies</option>
+                    <option value="books">Books</option>
+                    <option value="games">Games</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="db-illustration">Emoji or Image URL</label>
+                  <input type="text" id="db-illustration" class="form-input" placeholder="e.g. 🚀 or https://...">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="db-genres">Genres (comma separated)</label>
+                <input type="text" id="db-genres" class="form-input" placeholder="e.g. Sci-Fi, Adventure">
+              </div>
+
+              <div class="form-group">
+                <label for="db-moods">Moods (comma separated)</label>
+                <input type="text" id="db-moods" class="form-input" placeholder="e.g. Epic, Mind-bending">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="db-pace">Pace (1-5)</label>
+                  <select id="db-pace" class="form-select">
+                    <option value="1">1 - Chill</option>
+                    <option value="2">2 - Subtle</option>
+                    <option value="3" selected>3 - Balanced</option>
+                    <option value="4">4 - Quick</option>
+                    <option value="5">5 - Adrenaline</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="db-complexity">Complexity (1-5)</label>
+                  <select id="db-complexity" class="form-select">
+                    <option value="1">1 - Simple</option>
+                    <option value="2">2 - Light</option>
+                    <option value="3" selected>3 - Moderate</option>
+                    <option value="4">4 - Complex</option>
+                    <option value="5">5 - Deep/Heavy</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="db-era">Era (1-5)</label>
+                <select id="db-era" class="form-select">
+                  <option value="1">1 - Retro (Classic)</option>
+                  <option value="2">2 - Nostalgic (80s/90s)</option>
+                  <option value="3" selected>3 - Millennium (2000s)</option>
+                  <option value="4">4 - Recent Era</option>
+                  <option value="5">5 - State of the Art</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="db-desc">Short Description *</label>
+                <textarea id="db-desc" class="form-textarea" rows="2" placeholder="Brief summary of the item..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="db-why">Why they will like it</label>
+                <input type="text" id="db-why" class="form-input" placeholder="e.g. Packed with deep lore and secrets.">
+              </div>
+
+              <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;" id="btn-add-submit">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                Insert Item
+              </button>
+            </form>
+          </div>
+
+          <!-- Entries Panel -->
+          <div class="card" id="database-list-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- View 4: Automated Tests -->
+      <div id="tests-content" class="tab-content">
+        <div class="results-header">
+          <h2 style="font-family: var(--font-heading); font-size: 1.25rem;">Assertion Test Runner</h2>
+        </div>
+        <div class="card tests-panel" id="tests-results-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Details Modal Overlay -->
+  <div class="modal-overlay" id="details-modal">
+    <div class="modal-container" id="modal-body-content">
+      <!-- Rendered dynamically -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 Synapse Recommendation Engines. Powered by Vector Similarity Matrix & Jaccard logic.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
